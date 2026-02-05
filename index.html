@@ -1,879 +1,837 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Pro Esports Celebration Day</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Matka Store - Admin & Shop</title>
+
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<!-- Google Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&family=Nunito:wght@200;300;400;600;700;800&amp;family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+/* ===== GLOBAL THEME & BACKGROUND ===== */
+body {
+    margin: 0;
+    color: white;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    min-height: 100vh;
     
-    <!-- LIBRARIES -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+    /* SCROLLING SCANLINE BACKGROUND */
+    background: 
+        linear-gradient(#000 1px, #0000 0),            
+        linear-gradient(90deg, #000, #0000, #000),      
+        linear-gradient(in oklch longer hue -2deg, #a00, #a00);
+    background-size: 
+        100% 2px,
+        100% 100%,
+        100% 100%;
     
-    <style>
-        /* --- 1. RESET & BASICS --- */
-        :root {
-            --neon-blue: #00f3ff;
-            --neon-purple: #bc13fe;
-            --neon-gold: #ffd700;
-            --bg-color: #08080c;
-            --panel-color: #161821;
-        }
+    display: flex;
+    flex-direction: column;
+}
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+/* Scrollbar */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: #0f172a; }
+::-webkit-scrollbar-thumb { background: #ea5358; border-radius: 4px; }
 
-        body {
-            background-color: var(--bg-color);
-            color: #fff;
-            font-family: 'Rajdhani', sans-serif;
-            overflow-x: hidden;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            position: relative;
-            transition: background 0.5s ease;
-        }
+/* ===== NAVBAR ===== */
+nav {
+    position: sticky; top: 0; z-index: 1000;
+    background: rgba(15, 23, 42, 0.7);
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 15px 40px;
+    display: flex; justify-content: space-between; align-items: center;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+.logo { font-size: 1.5rem; font-weight: 800; color: white; text-decoration: none; }
+.logo span {
+    background: linear-gradient(to right, #f7ba2b, #ea5358);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.nav-links { display: flex; gap: 15px; flex-wrap: wrap; }
+.nav-btn {
+    background: transparent; border: none; color: #cbd5e1;
+    font-size: 0.9rem; font-weight: 600; cursor: pointer;
+    position: relative; padding: 5px 0; text-transform: uppercase;
+}
+.nav-btn:hover { color: white; text-shadow: 0 0 8px rgba(234, 83, 88, 0.6); }
+.nav-btn.active { color: white; border-bottom: 2px solid #ea5358; }
+.nav-btn.admin-btn { color: #f7ba2b; }
+.nav-btn.admin-btn:hover { color: white; }
 
-        /* --- BACKGROUND FX (Initial State) --- */
-        .bg-fx-container {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            z-index: -1;
-            overflow: hidden;
-            pointer-events: none;
-            transition: opacity 0.5s ease;
-        }
+/* ===== MAIN CONTAINER ===== */
+.container {
+    padding: 40px 20px; max-width: 1320px; margin: 0 auto;
+    flex: 1; background: transparent; width: 100%;
+}
 
-        .pattern-bg {
-            width: 100%;
-            height: 100%;
-            background: repeating-linear-gradient(
-                135deg,
-                #232526 0px,
-                #232526 60px,
-                #23252699 70px,
-                #414345 130px
-            );
-        }
+/* Toast */
+.toast {
+    position: fixed; bottom: 30px; right: 30px;
+    background: rgba(15, 23, 42, 0.95); color: #f7ba2b;
+    padding: 15px 25px; border-radius: 8px; border: 1px solid #f7ba2b;
+    display: none; z-index: 2000; font-weight: 600;
+    animation: slideIn 0.3s ease-out;
+}
+@keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
 
-        .cube-svg {
-            position: absolute;
-            width: 200%;
-            height: 200%;
-            left: -30%;
-            top: -20%;
-            background: transparent;
-            opacity: 0.15;
-            z-index: 1;
-            animation: cubeMove 18s linear infinite alternate;
-        }
+/* ===== PREVIEW CARDS (Home) ===== */
+#productArea { display: flex; flex-wrap: wrap; gap: 50px; justify-content: center; margin-top: 30px; }
+.card {
+    --background: linear-gradient(to left, #f7ba2b 0%, #ea5358 100%);
+    width: 190px; height: 254px; padding: 5px; border-radius: 1rem;
+    background: var(--background); position: relative; z-index: 1; margin: 0 auto; transition: transform 0.3s;
+}
+.card:hover { transform: translateY(-10px); }
+.card-info {
+    background: #181818; color: #181818;
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    width: 100%; height: 100%; border-radius: .7rem; transition: color 1s;
+}
+.card .title { font-weight: bold; margin-bottom: 5px; font-size: 1.1rem; text-transform: uppercase; }
+.card:hover .card-info { color: #f7ba2b; }
+.card-info button { background: #334155; color: white; border: none; padding: 8px 16px; border-radius: 5px; cursor: pointer; }
+.card:hover .card-info button { background: #f7ba2b; color: #181818; }
 
-        @keyframes cubeMove {
-            from { transform: translateY(0) scale(1); }
-            to { transform: translateY(-20%) scale(1.02) rotate(1deg); }
-        }
+/* ===== ADMIN PANEL STYLES ===== */
+.admin-tabs { display: flex; gap: 20px; margin-bottom: 20px; border-bottom: 1px solid #334155; padding-bottom: 10px; }
+.admin-tab { cursor: pointer; color: #94a3b8; font-weight: 600; padding-bottom: 5px; }
+.admin-tab.active { color: #f7ba2b; border-bottom: 2px solid #f7ba2b; }
 
-        /* --- OLD/COMPLETED BACKGROUND STATE (UPDATED) --- */
-        body.background-completed {
-            /* High-Quality Dark Gaming/Tech Background */
-            background: url('https://images.unsplash.com/photo-1614680376593-902f74cf0d41?q=80&w=2574&auto=format&fit=crop') no-repeat center center fixed;
-            background-size: cover;
-        }
+/* Admin Forms */
+.admin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+.admin-form-card { background: rgba(30, 41, 59, 0.8); padding: 25px; border-radius: 10px; border: 1px solid #475569; }
+.admin-input { width: 100%; padding: 10px; margin-bottom: 10px; background: #0f172a; border: 1px solid #334155; color: white; border-radius: 5px; }
+.btn-primary { background: #ea5358; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+.btn-danger { background: #be123c; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; }
 
-        /* Overlay to ensure text is readable over the image */
-        body.background-completed::before {
-            content: '';
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(8, 8, 12, 0.8); /* Dark tint */
-            z-index: -1;
-            pointer-events: none;
-        }
+/* Admin Tables */
+.activity-table { width: 100%; border-collapse: collapse; margin-top: 20px; background: rgba(15, 23, 42, 0.8); }
+.activity-table th, .activity-table td { text-align: left; padding: 15px; border-bottom: 1px solid #334155; }
+.activity-table th { color: #f7ba2b; }
+.user-status { padding: 5px 10px; border-radius: 12px; font-size: 0.8rem; }
+.user-status.active { background: rgba(34, 197, 94, 0.2); color: #4ade80; }
+.user-status.banned { background: rgba(239, 68, 68, 0.2); color: #f87171; }
 
-        body.background-completed .bg-fx-container {
-            opacity: 0;
-            pointer-events: none;
-        }
+/* ==========================================
+   UIVERSE LOGIN FORM (Themed)
+   ========================================== */
+.form-container {
+  width: 350px;
+  /* Auto height for potential signup mode, but strict for login */
+  height: 520px; 
+  background-color: #fff;
+  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+  border-radius: 10px;
+  box-sizing: border-box;
+  padding: 20px 30px;
+  margin: auto; /* Centers vertically in flex container */
+}
 
-        /* --- 2. HERO SECTION --- */
-        .hero-section {
-            text-align: center;
-            padding-top: 80px;
-            padding-bottom: 60px;
-            position: relative;
-            z-index: 5;
-        }
+.form-container .title {
+  text-align: center;
+  font-family: "Lucida Sans", "Lucida Sans Regular", "Lucida Grande",
+        "Lucida Sans Unicode", Geneva, Verdana, sans-serif;
+  margin: 10px 0 30px 0;
+  font-size: 28px;
+  font-weight: 800;
+  color: #333;
+}
 
-        .main-title {
-            font-family: 'Orbitron', sans-serif;
-            font-weight: 900;
-            font-size: clamp(3rem, 12vw, 7rem);
-            line-height: 0.9;
-            text-transform: uppercase;
-            background: linear-gradient(180deg, #ffffff 0%, #a5a5a5 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            letter-spacing: -2px;
-            margin-bottom: 10px;
-            filter: drop-shadow(0 0 20px rgba(0, 243, 255, 0.3));
-        }
+.form-container .form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin-bottom: 15px;
+}
 
-        .slogan-text {
-            font-family: 'Orbitron', sans-serif;
-            font-weight: 700;
-            font-size: clamp(1.5rem, 5vw, 3rem);
-            color: transparent;
-            -webkit-text-stroke: 1px var(--neon-purple);
-            text-transform: uppercase;
-            letter-spacing: 5px;
-            margin-top: 5px;
-            position: relative;
-            display: inline-block;
-        }
-        .slogan-text::after {
-            content: 'GAME FOR DAYS';
-            position: absolute;
-            left: 0; top: 0; width: 100%; height: 100%;
-            color: var(--neon-purple);
-            opacity: 0.2;
-            z-index: -1;
-            transform: translate(4px, 4px);
-        }
+.form-container .input {
+  border-radius: 20px;
+  border: 1px solid #c0c0c0;
+  outline: 0 !important;
+  box-sizing: border-box;
+  padding: 12px 15px;
+  width: 100%;
+  transition: 0.3s;
+}
 
-        /* --- 3. GAME CARDS --- */
-        .games-container {
-            padding: 0 20px;
-            margin-bottom: 60px;
-            z-index: 5;
-        }
+.form-container .input:focus {
+    border-color: #ea5358;
+}
 
-        .games-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 25px;
-            max-width: 1000px;
-            margin: 0 auto;
-        }
+.form-container .page-link {
+  text-decoration: underline;
+  margin: 0;
+  text-align: end;
+  color: #747474;
+  text-decoration-color: #747474;
+}
 
-        @media (max-width: 768px) {
-            .games-grid { grid-template-columns: 1fr; }
-            .hero-section { padding-bottom: 40px; }
-        }
+.form-container .page-link-label {
+  cursor: pointer;
+  font-family: "Lucida Sans", "Lucida Sans Regular", "Lucida Grande",
+        "Lucida Sans Unicode", Geneva, Verdana, sans-serif;
+  font-size: 9px;
+  font-weight: 700;
+}
 
-        .game-card {
-            background: linear-gradient(160deg, #1f222e 0%, #13151c 100%);
-            border: 1px solid #333;
-            border-radius: 15px;
-            padding: 30px;
-            text-align: center;
-            transition: 0.3s;
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
+.form-container .form-btn {
+  padding: 10px 15px;
+  font-family: "Lucida Sans", "Lucida Sans Regular", "Lucida Grande",
+        "Lucida Sans Unicode", Geneva, Verdana, sans-serif;
+  border-radius: 20px;
+  border: 0 !important;
+  outline: 0 !important;
+  /* CHANGED: From teal to Theme Red */
+  background: #ea5358; 
+  color: white;
+  cursor: pointer;
+  box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+  transition: background 0.3s;
+  font-weight: bold;
+}
 
-        .game-card:hover {
-            transform: translateY(-5px);
-            border-color: var(--neon-blue);
-            box-shadow: 0 15px 40px rgba(0, 243, 255, 0.15);
-        }
+.form-container .form-btn:hover {
+    background: #be123c; /* Darker red */
+}
 
-        .game-icon {
-            font-size: 4rem;
-            margin-bottom: 20px;
-            display: block;
-            filter: drop-shadow(0 5px 10px rgba(0,0,0,0.5));
-        }
+.form-container .sign-up-label {
+  margin: 0;
+  font-size: 10px;
+  color: #747474;
+  font-family: "Lucida Sans", "Lucida Sans Regular", "Lucida Grande",
+        "Lucida Sans Unicode", Geneva, Verdana, sans-serif;
+}
 
-        .game-title {
-            font-family: 'Orbitron';
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #fff;
-            margin-bottom: 5px;
-        }
+.form-container .sign-up-link {
+  margin-left: 1px;
+  font-size: 11px;
+  text-decoration: underline;
+  /* CHANGED: Text color to theme */
+  text-decoration-color: #ea5358; 
+  color: #ea5358;
+  cursor: pointer;
+  font-weight: 800;
+  font-family: "Lucida Sans", "Lucida Sans Regular", "Lucida Grande",
+        "Lucida Sans Unicode", Geneva, Verdana, sans-serif;
+}
 
-        .game-badge {
-            background: #333;
-            color: var(--neon-gold);
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            font-weight: bold;
-        }
+.form-container .buttons-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  margin-top: 20px;
+  gap: 15px;
+}
 
-        /* --- 3.5 SPONSOR PANEL --- */
-        .sponsors-section {
-            position: relative;
-            z-index: 5;
-            padding: 40px 0;
-            background: rgba(0,0,0,0.3);
-            border-top: 1px solid #222;
-            border-bottom: 1px solid #222;
-            margin-bottom: 40px;
-            overflow: hidden;
-        }
+.form-container .apple-login-button,
+.form-container .google-login-button {
+  border-radius: 20px;
+  box-sizing: border-box;
+  padding: 10px 15px;
+  box-shadow: rgba(0, 0, 0, 0.16) 0px 10px 36px 0px,
+        rgba(0, 0, 0, 0.06) 0px 0px 0px 1px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: "Lucida Sans", "Lucida Sans Regular", "Lucida Grande",
+        "Lucida Sans Unicode", Geneva, Verdana, sans-serif;
+  font-size: 11px;
+  gap: 5px;
+  transition: transform 0.2s;
+}
 
-        .sponsors-header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
+.form-container .apple-login-button:hover,
+.form-container .google-login-button:hover {
+    transform: translateY(-2px);
+}
 
-        .sponsors-header h3 {
-            font-family: 'Orbitron';
-            color: #666;
-            font-size: 1.2rem;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-        }
+.form-container .apple-login-button {
+  background-color: #000;
+  color: #fff;
+  border: 2px solid #000;
+}
 
-        .sponsors-header span {
-            color: var(--neon-blue);
-            font-weight: bold;
-        }
+.form-container .google-login-button {
+  border: 2px solid #747474;
+}
 
-        .marquee-container {
-            width: 100%;
-            overflow: hidden;
-            position: relative;
-        }
+.form-container .apple-icon,
+.form-container .google-icon {
+  font-size: 18px;
+  margin-bottom: 1px;
+}
 
-        .marquee-track {
-            display: flex;
-            width: max-content;
-            animation: scroll 30s linear infinite;
-        }
+/* Login View Wrapper */
+#login {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 80vh; /* Takes up screen space */
+}
 
-        .marquee-container:hover .marquee-track {
-            animation-play-state: paused;
-        }
+/* ==========================================
+   END LOGIN CSS
+   ========================================== */
 
-        .sponsor-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            width: 200px;
-            margin: 0 30px;
-            padding: 20px;
-            border: 1px solid rgba(255,255,255,0.1);
-            background: rgba(255,255,255,0.03);
-            border-radius: 10px;
-            transition: 0.3s;
-            cursor: pointer;
-        }
+/* ===== ORDER FORM OVERRIDES (Dark Theme) ===== */
+:root {
+    --font-family-body: "Open Sans", sans-serif;
+    --font-family-display: "Nunito Sans", sans-serif;
+    --color-background: #1e293b;
+    --color-border-default: #475569;
+    --color-border-active: #ea5358;
+    --color-highlight: #f7ba2b;
+    --color-primary: #ea5358;
+    --color-primary-active: #be123c;
+    --color-text-default: #ffffff;
+    --color-text-muted: #94a3b8;
+}
+.fs-input, .fs-select, .fs-textarea {
+    background-color: rgba(15, 23, 42, 0.6) !important;
+    color: white !important;
+}
+.fs-input:focus-visible, .fs-select:focus-visible, .fs-textarea:focus-visible {
+    box-shadow: var(--color-border-active) 0 0 0 1.5px inset !important;
+    outline: 3px solid var(--color-highlight) !important;
+}
+fieldset { background: rgba(30, 41, 59, 0.4); padding: 20px; border-radius: 10px; border: 1px solid #334155; }
 
-        .sponsor-item:hover {
-            background: rgba(255,255,255,0.08);
-            border-color: var(--neon-gold);
-            transform: scale(1.05);
-            box-shadow: 0 0 20px rgba(255, 215, 0, 0.1);
-        }
+/* Product Grid in Form */
+.product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; margin-top: 10px; }
+.product-option { cursor: pointer; position: relative; }
+.product-option input { position: absolute; opacity: 0; cursor: pointer; }
+.product-card {
+    background: #334155; border-radius: 8px; padding: 10px; text-align: center;
+    transition: all 0.2s; border: 2px solid transparent; height: 100%;
+    display: flex; flex-direction: column; align-items: center; justify-content: space-between;
+}
+.product-option input:checked + .product-card {
+    border-color: #ea5358; background: rgba(234, 83, 88, 0.1); box-shadow: 0 0 10px rgba(234, 83, 88, 0.4);
+}
+.product-img { width: 100%; height: 100px; object-fit: cover; border-radius: 5px; margin-bottom: 10px; }
+.product-price { font-weight: bold; color: #f7ba2b; }
+.product-option input:checked + .product-card .fs-radio-circle { background-color: var(--color-primary); border-color: var(--color-primary); }
+.product-option .fs-radio-circle { height: 15px; width: 15px; border-radius: 50%; border: 2px solid var(--color-border-default); margin-top: 5px; }
 
-        .sponsor-item i {
-            font-size: 2.5rem;
-            color: #555;
-            margin-bottom: 10px;
-            transition: 0.3s;
-        }
+/* ===== FOOTER ===== */
+.row { display: flex; flex-wrap: wrap; }
+.col-xl-4, .col-lg-4, .col-md-4 { width: 100%; padding: 0 15px; }
+@media (min-width: 992px) { .col-lg-4 { width: 33.333%; } }
+.footer-section { background: #151414; position: relative; margin-top: auto; padding-top: 50px; }
+.footer-logo a { font-size: 1.5rem; color: white; text-decoration: none; font-weight: bold; }
+.footer-logo span { color: #ea5358; }
+.footer-text p { color: #7e7e7e; font-size: 14px; line-height: 28px; }
+.footer-social-icon span { color: white; display: block; margin-bottom: 10px; }
+.footer-social-icon a { color: white; margin-right: 15px; font-size: 18px; }
+.copyright-area { background: #0f0f0f; padding: 20px 0; text-align: center; border-top: 1px solid #333; }
+.copyright-text p { color: #555; font-size: 14px; margin: 0; }
 
-        .sponsor-item:hover i {
-            color: var(--neon-gold);
-        }
+/* ==========================================
+   ABOUT SECTION CSS (Dark Theme Overrides)
+   ========================================== */
+*, *:before, *:after { box-sizing: border-box; }
+a { text-decoration: none; color: inherit; }
+.responsive-container-block { min-height: 75px; height: fit-content; width: 100%; padding: 10px; display: flex; flex-wrap: wrap; margin: 0 auto; justify-content: flex-start; }
+.text-blk { padding: 10px; line-height: 25px; margin: 0; }
+.responsive-container-block.bigContainer { padding: 10px 50px; flex-direction: column; align-items: center; justify-content: center; }
+.responsive-container-block.Container { max-width: 1320px; padding: 10px; justify-content: center; align-items: center; }
+.responsive-container-block.Container.bottomContainer { flex-direction: row-reverse; margin-top: 80px; position: static; }
+.allText { width: 40%; display: flex; flex-direction: column; align-items: flex-start; }
+.allText.bottomText { margin-right: 40px; }
+.mainImg { width: 100%; height: auto; border-radius: 10px; }
+.ultimateImg { width: 50%; position: relative; }
 
-        .sponsor-name {
-            font-family: 'Orbitron';
-            font-size: 0.9rem;
-            color: #888;
-            font-weight: 700;
-        }
-        
-        .sponsor-item:hover .sponsor-name {
-            color: #fff;
-        }
+#about .explore { font-size: 16px; line-height: 28px; border: 2px solid #f7ba2b; color: #f7ba2b; background: transparent; cursor: pointer; padding: 8px 40px; border-radius: 5px; transition: all 0.3s; }
+#about .explore:hover { background: #f7ba2b; color: #0f172a; }
+#about .text-blk.headingText { font-size: 22px; font-weight: 700; line-height: 30px; color: #f7ba2b; }
+#about .text-blk.subHeadingText { color: #e2e8f0; font-size: 26px; line-height: 32px; font-weight: 700; }
+#about .text-blk.description { color: #94a3b8; font-size: 18px; line-height: 26px; }
+#about .purpleBox { display: flex; flex-direction: column; align-items: flex-start; max-width: 430px; background: linear-gradient(to right, #f7ba2b, #ea5358); padding: 20px; border-radius: 10px; position: absolute; bottom: -35px; left: -8%; }
+#about .purpleText { font-size: 18px; line-height: 26px; color: white; font-weight: 600; margin-bottom: 10px; }
+#about .stars { width: 100px; }
 
-        @keyframes scroll {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
-        }
+@media (max-width: 768px) {
+  .responsive-container-block.Container.bottomContainer { flex-direction: column; margin-top: 50px; }
+  .allText { width: 100%; margin-top: 40px; align-items: center; text-align: center; }
+  .allText.bottomText { margin: 0; padding: 0; }
+  .ultimateImg { width: 100%; }
+  .responsive-container-block.Container { flex-direction: column; height: auto; }
+  #about .purpleBox { position: static; margin-top: 20px; width: 100%; max-width: none; }
+}
 
-        @media (max-width: 768px) {
-            .marquee-track {
-                animation: none;
-                flex-wrap: wrap;
-                justify-content: center;
-                width: 100%;
-            }
-            .sponsor-item {
-                width: 45%;
-                margin: 10px;
-            }
-        }
+/* ==========================================
+   END ABOUT CSS
+   ========================================== */
 
-        /* --- 4. FORM UI --- */
-        #modal-backdrop {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85);
-            backdrop-filter: blur(5px);
-            z-index: 2000;
-            display: none;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
+/* Form Specific CSS */
+*, ::before, ::after { box-sizing: border-box; }
+button, input, optgroup, select, textarea { font-family: inherit; font-size: 100%; font-weight: inherit; line-height: inherit; color: inherit; margin: 0; padding: 0; }
+[type="checkbox"], [type="radio"] { appearance: none; flex-shrink: 0; padding: 0; user-select: none; }
+.fs-form { display: grid; row-gap: 1.5rem; }
+.fs-form:where(.fs-layout__2-column) { column-gap: 1.5rem; grid-template-columns: 1fr 1fr; }
+fieldset { display: grid; margin: 1.5rem 0; row-gap: 1.5rem; border: none; }
+.fs-fieldset-title { color: var(--color-text-default); font-family: var(--font-family-display); font-size: 1.25rem; font-weight: 500; margin-bottom: 1.5rem; grid-column: 1 / -1; }
+.fs-field { display: flex; flex-direction: column; row-gap: 0.375rem; }
+.fs-label { color: var(--color-text-default); font-family: var(--font-family-display); font-size: 0.875rem; font-weight: 500; }
+.fs-button-group { display: flex; flex-direction: row-reverse; column-gap: 1.5rem; }
+.fs-form:where(.fs-layout__2-column) .fs-button-group { grid-column: 1 / -1; }
+.fs-button { background-color: var(--color-primary); border-radius: 0.375rem; color: white; cursor: pointer; font-size: 1rem; font-weight: 600; line-height: 1.25rem; padding: 1rem 2rem; transition: background-color 0.2s; border: none; }
+.fs-button:hover { background-color: var(--color-primary-active); }
+.fs-input, .fs-select { appearance: none; border-radius: 0.375rem; border-width: 0; box-shadow: var(--color-border-default) 0 0 0 1px inset; font-size: 1rem; height: 2.75rem; padding-left: 0.75rem; padding-right: 0.75rem; width: 100%; }
+.fs-select { background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23cbd5e1' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e"); background-position: right 0.5rem center; background-repeat: no-repeat; background-size: 1.5em 1.5em; padding-right: 2.5rem; }
+.fs-textarea { appearance: none; border-radius: 0.375rem; border-width: 0; box-shadow: var(--color-border-default) 0 0 0 1px inset; font-size: 1rem; padding: 0.75rem; min-height: 100px; width: 100%; }
+.col-span-full { grid-column: 1 / -1; }
+.fs-checkbox-field { display: flex; align-items: flex-start; gap: 10px; margin-top: 10px; }
+.fs-checkbox-wrapper input { appearance: auto; width: 20px; height: 20px; cursor: pointer; }
 
-        .modal-form {
-            background: var(--panel-color);
-            width: 100%;
-            max-width: 450px;
-            height: 85vh;
-            max-height: 800px;
-            border-radius: 20px;
-            border: 1px solid #333;
-            display: flex;
-            flex-direction: column;
-            box-shadow: 0 0 50px rgba(0,0,0,0.8);
-            position: relative;
-            animation: popUp 0.3s ease-out;
-        }
-
-        @keyframes popUp { from {transform: scale(0.9); opacity: 0;} to {transform: scale(1); opacity: 1;} }
-
-        .modal-body-scroll {
-            padding: 25px;
-            overflow-y: auto;
-            flex: 1;
-        }
-        .modal-body-scroll::-webkit-scrollbar { width: 6px; }
-        .modal-body-scroll::-webkit-scrollbar-thumb { background: #444; border-radius: 3px; }
-
-        .modal-header {
-            padding: 20px 25px;
-            border-bottom: 1px solid #2a2d36;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: #1a1d26;
-            border-radius: 20px 20px 0 0;
-        }
-        .modal-header h3 {
-            font-family: 'Orbitron';
-            font-size: 1.1rem;
-            color: var(--neon-blue);
-            margin: 0;
-            text-transform: uppercase;
-        }
-        .close-btn {
-            background: none; border: none; color: #666; font-size: 1.5rem; cursor: pointer;
-        }
-        .close-btn:hover { color: #fff; }
-
-        .form-group { margin-bottom: 20px; }
-        .form-label {
-            display: block; color: #aaa; font-size: 0.85rem; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; font-weight: 600;
-        }
-        .form-input {
-            width: 100%;
-            background: #0b0c10;
-            border: 1px solid #333;
-            padding: 12px 15px;
-            color: #fff;
-            border-radius: 8px;
-            font-family: 'Rajdhani';
-            font-size: 1rem;
-            transition: 0.3s;
-        }
-        .form-input:focus {
-            outline: none;
-            border-color: var(--neon-purple);
-            box-shadow: 0 0 10px rgba(188, 19, 254, 0.2);
-        }
-
-        .qr-compact {
-            background: #0b0c10;
-            border-radius: 10px;
-            padding: 15px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 20px;
-            border: 1px solid #333;
-        }
-        
-        .qr-compact img { 
-            width: 70px; 
-            height: 70px; 
-            border-radius: 5px; 
-            border: 1px solid #444; 
-            cursor: zoom-in;
-            transition: 0.2s;
-            object-fit: cover;
-        }
-        .qr-compact img:hover {
-            border-color: var(--neon-blue);
-            transform: scale(1.05);
-        }
-
-        .qr-info h6 { margin: 0; color: var(--neon-gold); font-family: 'Orbitron'; font-size: 0.9rem; }
-        .qr-info p { margin: 3px 0 0; font-size: 0.75rem; color: #888; }
-
-        .upload-compact {
-            border: 2px dashed #333;
-            border-radius: 10px;
-            padding: 20px;
-            text-align: center;
-            cursor: pointer;
-            background: #0f1115;
-            transition: 0.3s;
-        }
-        .upload-compact:hover { border-color: #666; background: #15181e; }
-        .upload-compact i { font-size: 1.5rem; color: #555; margin-bottom: 5px; }
-        .upload-compact p { font-size: 0.85rem; color: #777; margin: 0; }
-
-        .btn-submit {
-            width: 100%;
-            padding: 14px;
-            background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple));
-            color: #fff;
-            border: none;
-            border-radius: 8px;
-            font-family: 'Orbitron';
-            font-weight: 900;
-            font-size: 1rem;
-            text-transform: uppercase;
-            cursor: pointer;
-            margin-top: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-        }
-        .btn-submit:hover { opacity: 0.9; transform: translateY(-2px); }
-        .btn-submit:disabled { background: #333; color: #666; cursor: not-allowed; transform: none; }
-
-        /* --- 5. TOAST NOTIFICATIONS --- */
-        .toast-container {
-            position: fixed; top: 20px; right: 20px; z-index: 3000;
-            display: flex; flex-direction: column; gap: 10px;
-        }
-        .toast {
-            background: #1f222e;
-            color: #fff;
-            padding: 15px 20px;
-            border-left: 4px solid var(--neon-blue);
-            border-radius: 4px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.5);
-            min-width: 280px;
-            animation: slideIn 0.3s ease;
-            display: flex; align-items: center; gap: 10px;
-        }
-        .toast.error { border-left-color: #ff4444; }
-        @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
-
-        /* --- 6. QR LIGHTBOX --- */
-        #qr-lightbox {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.9);
-            z-index: 5000;
-            display: none;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            cursor: pointer;
-        }
-
-        #qr-lightbox img {
-            max-width: 90%;
-            max-height: 80%;
-            border-radius: 15px;
-            border: 2px solid var(--neon-blue);
-            box-shadow: 0 0 50px rgba(0, 243, 255, 0.2);
-            animation: zoomIn 0.3s ease-out;
-        }
-
-        #qr-lightbox p {
-            margin-top: 20px;
-            color: #fff;
-            font-family: 'Orbitron';
-            letter-spacing: 2px;
-            background: rgba(0,0,0,0.5);
-            padding: 5px 15px;
-            border-radius: 20px;
-        }
-
-        @keyframes zoomIn {
-            from { transform: scale(0.5); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
-        }
-
-        /* --- FOOTER --- */
-        footer { margin-top: auto; background: #000; padding: 30px; text-align: center; color: #555; border-top: 1px solid #111; position: relative; z-index: 5;}
-        footer p { font-size: 0.9rem; margin: 0; }
-        .socials a { color: #555; font-size: 1.2rem; margin: 0 10px; transition: 0.3s; }
-        .socials a:hover { color: var(--neon-purple); }
-
-    </style>
+</style>
 </head>
+
 <body>
 
-    <!-- BACKGROUND FX LAYER -->
-    <div class="bg-fx-container">
-        <div class="pattern-bg"></div>
-        <svg class="cube-svg" viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-                <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" style="stop-color:rgb(0,243,255);stop-opacity:0.2" />
-                    <stop offset="100%" style="stop-color:rgb(188,19,254);stop-opacity:0.2" />
-                </linearGradient>
-            </defs>
-            <path fill="url(#grad1)" d="M250,50 L450,150 L450,350 L250,450 L50,350 L50,150 Z" />
-            <path fill="none" stroke="#00f3ff" stroke-width="2" d="M250,50 L450,150 L450,350 L250,450 L50,350 L50,150 Z" opacity="0.5"/>
-            <path fill="none" stroke="#bc13fe" stroke-width="2" d="M250,50 L250,450 M50,150 L450,150 M50,350 L450,350" opacity="0.3"/>
-        </svg>
+<!-- NAVBAR -->
+<nav>
+    <div class="logo">Matka<span>Store</span></div>
+    <div class="nav-links">
+        <button id="btn-home" class="nav-btn active" onclick="show('home')">Home</button>
+        <button id="btn-about" class="nav-btn" onclick="show('about')">About</button>
+        <button id="btn-order-form" class="nav-btn" onclick="show('order-form')">Quick Order</button>
+        <button id="btn-admin" class="nav-btn admin-btn" onclick="show('admin')"><i class="fas fa-cog"></i> Admin</button>
+        <button id="btn-login" class="nav-btn" onclick="show('login')">Login</button>
+        <button id="btn-orders" class="nav-btn" onclick="show('orders')">My Orders</button>
+    </div>
+</nav>
+
+<div id="toast" class="toast"></div>
+
+<!-- HOME: PRODUCT CARDS -->
+<div id="home" class="container">
+    <h2 style="text-align: center; color: #e2e8f0;">Select a Product to Order</h2>
+    <div id="productArea">Loading...</div>
+</div>
+
+<!-- ADMIN DASHBOARD -->
+<div id="admin" class="container" style="display:none;">
+    <h2 style="color: #f7ba2b; border-bottom: 1px solid #334155; padding-bottom: 15px;">Admin Dashboard</h2>
+    
+    <div class="admin-tabs">
+        <div class="admin-tab active" onclick="switchAdminTab('products')">Manage Products</div>
+        <div class="admin-tab" onclick="switchAdminTab('users')">User Activity</div>
     </div>
 
-    <!-- TOAST CONTAINER -->
-    <div class="toast-container" id="toast-container"></div>
-
-    <!-- HERO SECTION -->
-    <div class="hero-section">
-        <h1 class="main-title">THE ULTIMATE</h1>
-        <div class="slogan-text">GAME FOR DAYS</div>
-        <p style="color: #666; margin-top: 15px; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 2px;">Esports Championship Series</p>
-    </div>
-
-    <!-- GAMES GRID -->
-    <div class="games-container">
-        <div class="games-grid">
-            <div class="game-card" onclick="openForm('PUBG MOBILE')">
-                <span class="game-icon">🪖</span>
-                <h3 class="game-title">PUBG MOBILE</h3>
-                <span class="game-badge">Squad Mode</span>
+    <!-- PRODUCTS TAB -->
+    <div id="admin-products">
+        <div class="admin-grid">
+            <div class="admin-form-card">
+                <h3 style="color: white;">Add New Product</h3>
+                <input type="text" id="new-prod-name" class="admin-input" placeholder="Product Name">
+                <input type="number" id="new-prod-price" class="admin-input" placeholder="Price (₹)">
+                <input type="text" id="new-prod-img" class="admin-input" placeholder="Image URL (Optional)">
+                <button class="btn-primary" onclick="adminAddProduct()">Add to Store</button>
             </div>
-            <div class="game-card" onclick="openForm('FREE FIRE')">
-                <span class="game-icon">🔥</span>
-                <h3 class="game-title">FREE FIRE</h3>
-                <span class="game-badge">Clash Squad</span>
-            </div>
-            <div class="game-card" onclick="openForm('COD MOBILE')">
-                <span class="game-icon">💀</span>
-                <h3 class="game-title">COD MOBILE</h3>
-                <span class="game-badge">TDM Ranked</span>
-            </div>
-            <div class="game-card" onclick="openForm('BGMI')">
-                <span class="game-icon">🇮🇳</span>
-                <h3 class="game-title">BGMI</h3>
-                <span class="game-badge">Classic Erangel</span>
+            <div class="admin-form-card">
+                <h3 style="color: white;">Current Inventory</h3>
+                <div id="admin-product-list" style="max-height: 400px; overflow-y: auto;">Loading...</div>
             </div>
         </div>
     </div>
 
-    <!-- SPONSOR PANEL -->
-    <div class="sponsors-section">
-        <div class="sponsors-header">
-            <h3>Official Partners & <span>Sponsors</span></h3>
+    <!-- USERS TAB -->
+    <div id="admin-users" style="display:none;">
+        <div class="admin-form-card">
+            <h3 style="color: white;">User Activity Log</h3>
+            <table class="activity-table">
+                <thead>
+                    <tr>
+                        <th>User Email</th>
+                        <th>Last Action</th>
+                        <th>Status</th>
+                        <th>Control</th>
+                    </tr>
+                </thead>
+                <tbody id="user-activity-body"></tbody>
+            </table>
         </div>
-        
-        <div class="marquee-container">
-            <div class="marquee-track">
-                <!-- Set 1 -->
-                <div class="sponsor-item"><i class="fas fa-gamepad"></i><span class="sponsor-name">RAZER</span></div>
-                <div class="sponsor-item"><i class="fab fa-twitch"></i><span class="sponsor-name">TWITCH</span></div>
-                <div class="sponsor-item"><i class="fas fa-headset"></i><span class="sponsor-name">STEELSERIES</span></div>
-                <div class="sponsor-item"><i class="fab fa-discord"></i><span class="sponsor-name">DISCORD</span></div>
-                <div class="sponsor-item"><i class="fas fa-bolt"></i><span class="sponsor-name">RED BULL</span></div>
-                <div class="sponsor-item"><i class="fab fa-steam"></i><span class="sponsor-name">STEAM</span></div>
-                <div class="sponsor-item"><i class="fas fa-rocket"></i><span class="sponsor-name">SPACEX</span></div>
-                
-                <!-- Set 2 (Duplicate for seamless loop) -->
-                <div class="sponsor-item"><i class="fas fa-gamepad"></i><span class="sponsor-name">RAZER</span></div>
-                <div class="sponsor-item"><i class="fab fa-twitch"></i><span class="sponsor-name">TWITCH</span></div>
-                <div class="sponsor-item"><i class="fas fa-headset"></i><span class="sponsor-name">STEELSERIES</span></div>
-                <div class="sponsor-item"><i class="fab fa-discord"></i><span class="sponsor-name">DISCORD</span></div>
-                <div class="sponsor-item"><i class="fas fa-bolt"></i><span class="sponsor-name">RED BULL</span></div>
-                <div class="sponsor-item"><i class="fab fa-steam"></i><span class="sponsor-name">STEAM</span></div>
-                <div class="sponsor-item"><i class="fas fa-rocket"></i><span class="sponsor-name">SPACEX</span></div>
+    </div>
+</div>
+
+<!-- ABOUT PAGE -->
+<div id="about" class="container" style="display:none;">
+    <div class="responsive-container-block bigContainer">
+      <div class="responsive-container-block Container bottomContainer">
+        <div class="ultimateImg">
+          <img class="mainImg" src="https://images.unsplash.com/photo-1615655406736-b37c4fabf923?auto=format&fit=crop&w=800&q=80">
+          <div class="purpleBox">
+            <p class="purpleText">"Lorem ipsum dolor sit amet, consectetur adipiscing elit."</p>
+            <img class="stars" src="https://workik-widget-assets.s3.amazonaws.com/widget-assets/images/mp5.svg">
+          </div>
+        </div>
+        <div class="allText bottomText">
+          <p class="text-blk headingText">About Our Craft</p>
+          <p class="text-blk subHeadingText">Handmade with Passion</p>
+          <p class="text-blk description">
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fermentum pulvinar ullamcorper suspendisse ac eget. Pellentesque tempus leo in ullamcorper quis vestibulum ligula elementum ut.
+          </p>
+          <a class="explore" onclick="show('order-form')">View Services & Order</a>
+        </div>
+      </div>
+    </div>
+</div>
+
+<!-- ORDER FORM VIEW -->
+<div id="order-form" class="container" style="display:none;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+        <h2 style="margin:0;">Place Your Order</h2>
+        <button onclick="show('home')" style="background:transparent; border:1px solid #475569; color:#94a3b8; padding:5px 15px; border-radius:4px; cursor:pointer;">&larr; Back</button>
+    </div>
+
+    <form class="fs-form fs-layout__2-column" onsubmit="handleOrderSubmit(event)">
+      <fieldset>
+        <legend class="fs-fieldset-title">Shipping Details</legend>
+        <div class="fs-field"><label class="fs-label">Full Name</label><input class="fs-input" placeholder="John Doe" required /></div>
+        <div class="fs-field"><label class="fs-label">Email</label><input class="fs-input" placeholder="john@example.com" required /></div>
+        <div class="fs-field"><label class="fs-label">Phone</label><input class="fs-input" placeholder="9876543210" required /></div>
+        <div class="fs-field"><label class="fs-label">City</label><input class="fs-input" placeholder="Chandigarh" required /></div>
+      </fieldset>
+
+      <fieldset>
+        <legend class="fs-fieldset-title">Select Product</legend>
+        <div class="fs-field col-span-full">
+            <div class="product-grid" id="order-product-grid"></div>
+        </div>
+      </fieldset>
+
+      <div class="fs-button-group">
+        <button class="fs-button" type="submit">Submit Order</button>
+      </div>
+    </form>
+</div>
+
+<!-- NEW UIVERSE LOGIN VIEW -->
+<div id="login" class="container" style="display:none;">
+    <div class="form-container">
+      <p class="title" id="login-title">Welcome back</p>
+      <form class="form">
+        <input type="email" id="login-email" class="input" placeholder="Email">
+        <input type="password" id="login-pass" class="input" placeholder="Password">
+        <p class="page-link">
+          <span class="page-link-label" onclick="showToast('Password reset link sent (Demo)')">Forgot Password?</span>
+        </p>
+        <button class="form-btn" type="button" id="login-submit-btn">Log in</button>
+      </form>
+      <p class="sign-up-label">
+        <span id="login-mode-text">Don't have an account?</span><span class="sign-up-link" onclick="toggleMode()">Sign up</span>
+      </p>
+      <div class="buttons-container">
+        <div class="apple-login-button" onclick="showToast('Apple Login (Demo)')">
+          <svg stroke="currentColor" fill="currentColor" stroke-width="0" class="apple-icon" viewBox="0 0 1024 1024" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+            <path d="M747.4 535.7c-.4-68.2 30.5-119.6 92.9-157.5-34.9-50-87.7-77.5-157.3-82.8-65.9-5.2-138 38.4-164.4 38.4-27.9 0-91.7-36.6-141.9-36.6C273.1 298.8 163 379.8 163 544.6c0 48.7 8.9 99 26.7 150.8 23.8 68.2 109.6 235.3 199.1 232.6 46.8-1.1 79.9-33.2 140.8-33.2 59.1 0 89.7 33.2 141.9 33.2 90.3-1.3 167.9-153.2 190.5-221.6-121.1-57.1-114.6-167.2-114.6-170.7zm-105.1-305c50.7-60.2 46.1-115 44.6-134.7-44.8 2.6-96.6 30.5-126.1 64.8-32.5 36.8-51.6 82.3-47.5 133.6 48.4 3.7 92.6-21.2 129-63.7z"></path>
+          </svg>
+          <span>Log in with Apple</span>
+        </div>
+        <div class="google-login-button" onclick="showToast('Google Login (Demo)')">
+          <svg stroke="currentColor" fill="currentColor" stroke-width="0" version="1.1" x="0px" y="0px" class="google-icon" viewBox="0 0 48 48" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+            <path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12
+    c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24
+    c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"></path>
+            <path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657
+    C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"></path>
+            <path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36
+    c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"></path>
+            <path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571
+    c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"></path>
+          </svg>
+          <span>Log in with Google</span>
+        </div>
+      </div>
+    </div>
+</div>
+
+<!-- MY ORDERS -->
+<div id="orders" class="container" style="display:none">
+    <h2>My Orders</h2>
+    <div id="orderArea"></div>
+</div>
+
+<!-- FOOTER -->
+<footer class="footer-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-4">
+                <div class="footer-logo"><a href="#">Matka<span>Store</span></a></div>
+                <div class="footer-text"><p>Authentic clay products delivered to your doorstep.</p></div>
+                <div class="footer-social-icon">
+                    <span>Follow us</span>
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="footer-widget">
+                    <h4 style="color:white; font-size:18px; margin-bottom:15px;">Useful Links</h4>
+                    <ul style="list-style:none;">
+                        <li><a href="#" onclick="show('home')" style="color:#94a3b8; text-decoration:none; display:block; padding:5px 0;">Home</a></li>
+                        <li><a href="#" onclick="show('about')" style="color:#94a3b8; text-decoration:none; display:block; padding:5px 0;">About</a></li>
+                        <li><a href="#" onclick="show('order-form')" style="color:#94a3b8; text-decoration:none; display:block; padding:5px 0;">Order Now</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="footer-widget">
+                    <h4 style="color:white; font-size:18px; margin-bottom:15px;">Contact</h4>
+                    <p style="color:#94a3b8;">1010 Avenue, Chandigarh</p>
+                    <p style="color:#94a3b8;">+91 98765 43210</p>
+                </div>
             </div>
         </div>
     </div>
-
-    <!-- FOOTER -->
-    <footer>
-        <div class="socials">
-            <a href="#"><i class="fab fa-instagram"></i></a>
-            <a href="#"><i class="fab fa-discord"></i></a>
-            <a href="#"><i class="fab fa-youtube"></i></a>
-        </div>
-        <p style="margin-top: 15px;">&copy; 2024 Celebration Days. Created by Prince Prajapati.</p>
-    </footer>
-
-    <!-- MODAL FORM -->
-    <div id="modal-backdrop">
-        <div class="modal-form">
-            <div class="modal-header">
-                <h3 id="modal-title">REGISTER: GAME</h3>
-                <button class="close-btn" onclick="closeForm()">&times;</button>
-            </div>
-            
-            <div class="modal-body-scroll">
-                <form id="reg-form" onsubmit="submitData(event)">
-                    
-                    <div class="form-group">
-                        <label class="form-label">Gamer Name</label>
-                        <input type="text" name="full_name" class="form-input" placeholder="Enter your name" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Student ID / Game UID</label>
-                        <input type="text" name="game_uid" class="form-input" placeholder="ID Number" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Mobile Number</label>
-                        <input type="tel" name="mobile" class="form-input" 
-                               placeholder="10 digit number" 
-                               pattern="[0-9]{10}" 
-                               maxlength="10" 
-                               title="Please enter exactly 10 digits" 
-                               required>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Email</label>
-                        <input type="email" name="email" class="form-input" placeholder="For confirmation" required>
-                    </div>
-
-                    <div class="qr-compact">
-                        <!-- Image src will be set by JS -->
-                        <img id="small-qr" src="" alt="QR Loading...">
-                        <div class="qr-info">
-                            <h6>Entry Fee: ₹50</h6>
-                            <p>Scan QR to pay</p>
-                            <p style="color: var(--neon-blue);">Tap QR to Expand</p>
-                        </div>
-                    </div>
-
-                    <div class="upload-compact" onclick="document.getElementById('file-input').click()">
-                        <input type="file" id="file-input" hidden accept="image/*" required onchange="updateFileLabel(this)">
-                        <i class="fas fa-cloud-upload-alt"></i>
-                        <p id="file-text">Click to Upload Screenshot</p>
-                    </div>
-
-                    <button type="submit" class="btn-submit" id="submit-btn">CONFIRM REGISTRATION</button>
-
-                </form>
+    <div class="copyright-area">
+        <div class="container">
+            <div class="copyright-text">
+                <p>Copyright &copy; 2023, All Right Reserved <a href="#">MatkaStore</a></p>
             </div>
         </div>
     </div>
+</footer>
 
-    <!-- QR LIGHTBOX OVERLAY -->
-    <div id="qr-lightbox" onclick="closeQrLightbox()">
-        <img id="big-qr-img" src="" alt="Large QR Code">
-        <p>Click anywhere to close</p>
-    </div>
+<script>
+// ===== SUPABASE SETUP =====
+const SUPABASE_URL = "https://idjocwbvngdsmspohryo.supabase.co";
+const SUPABASE_KEY = "sb_publishable_Ibs2cHcANbf39YVDKOlyyQ_xvHnsFHe";
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    <script>
-        // --- 1. SUPABASE SETUP ---
-        const supabaseUrl = 'https://uttqltazlrfswyflwcnk.supabase.co';
-        const supabaseKey = 'sb_publishable_XxPs8fOVApejBKtliDvD4A_6-Z-7PPP';
-        let sbClient = null;
-        let currentQrId = null; // Stores the ID of the QR currently being displayed
+// Global State
+let currentUser = localStorage.getItem("user");
+let productsCache = [];
 
-        try {
-            if(window.supabase) sbClient = window.supabase.createClient(supabaseUrl, supabaseKey);
-        } catch(e) { console.log("Supabase not loaded"); }
+// ===== NAVIGATION =====
+function show(id) {
+    document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+    const btn = document.getElementById(`btn-${id}`);
+    if(btn) btn.classList.add('active');
 
-        // --- 2. TOAST NOTIFICATION SYSTEM ---
-        function showToast(msg, type='success') {
-            const container = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
-            
-            const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
-            const color = type === 'success' ? 'var(--neon-blue)' : '#ff4444';
+    ['home', 'login', 'orders', 'order-form', 'about', 'admin'].forEach(view => {
+        document.getElementById(view).style.display = 'none';
+    });
+    
+    document.getElementById(id).style.display = 'block';
 
-            toast.innerHTML = `<i class="fas ${icon}" style="color:${color}"></i> <span>${msg}</span>`;
-            
-            container.appendChild(toast);
-            setTimeout(() => {
-                toast.style.opacity = '0';
-                setTimeout(() => toast.remove(), 300);
-            }, 3000);
+    if(id === "orders") loadOrders();
+    if(id === "home") window.scrollTo(0,0);
+    if(id === "about") window.scrollTo(0,0);
+    if(id === "admin") loadAdminData();
+    if(id === "order-form") renderOrderFormProducts();
+}
+
+// ===== DATA FETCHING =====
+async function loadProducts() {
+    let area = document.getElementById("productArea");
+    let adminArea = document.getElementById("admin-product-list");
+    
+    let { data, error } = await sb.from("products").select("*");
+    
+    let demo = [
+        {id: 1, name:"Matka Small", price:150, image_url:"https://images.unsplash.com/photo-1610627746891-8d2c4f79900e?auto=format&fit=crop&w=200&q=80"},
+        {id: 2, name:"Matka Medium", price:250, image_url:"https://images.unsplash.com/photo-1606722989288-d848bce9944c?auto=format&fit=crop&w=200&q=80"},
+        {id: 3, name:"Matka Large", price:350, image_url:"https://images.unsplash.com/photo-1618331835717-801e976710b2?auto=format&fit=crop&w=200&q=80"},
+        {id: 4, name:"Decor Vase", price:400, image_url:"https://images.unsplash.com/photo-1578500494198-246f612d3b3d?auto=format&fit=crop&w=200&q=80"}
+    ];
+
+    let products = (data && data.length > 0) ? data : demo;
+    productsCache = products;
+
+    area.innerHTML = products.map(p => `
+        <div class="card">
+            <div class="card-info">
+                <div style="text-align: center;">
+                    <div class="title">${p.name}</div>
+                    <div style="font-size:1.2rem; margin:10px 0;">₹${p.price}</div>
+                    <button onclick="show('order-form')">Order Now</button>
+                </div>
+            </div>
+        </div>
+    `).join("");
+}
+
+function renderOrderFormProducts() {
+    let grid = document.getElementById("order-product-grid");
+    grid.innerHTML = productsCache.map((p, index) => `
+        <label class="product-option">
+            <input type="radio" name="product-name" value="${p.name}" ${index === 0 ? 'checked' : ''}>
+            <div class="product-card">
+                <img src="${p.image_url || 'https://via.placeholder.com/150'}" class="product-img">
+                <span style="font-size:0.9rem;">${p.name}</span>
+                <span class="product-price">₹${p.price}</span>
+                <div class="fs-radio-circle"></div>
+            </div>
+        </label>
+    `).join("");
+}
+
+// ===== ADMIN FUNCTIONS =====
+async function switchAdminTab(tab) {
+    document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+    if(tab === 'products') {
+        document.querySelector('.admin-tab:nth-child(1)').classList.add('active');
+        document.getElementById('admin-products').style.display = 'block';
+        document.getElementById('admin-users').style.display = 'none';
+    } else {
+        document.querySelector('.admin-tab:nth-child(2)').classList.add('active');
+        document.getElementById('admin-products').style.display = 'none';
+        document.getElementById('admin-users').style.display = 'block';
+    }
+}
+
+async function loadAdminData() {
+    let adminList = document.getElementById("admin-product-list");
+    adminList.innerHTML = productsCache.map(p => `
+        <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(15,23,42,0.5); padding:10px; margin-bottom:5px; border-radius:4px;">
+            <span>${p.name} (₹${p.price})</span>
+            <button class="btn-danger" onclick="adminDeleteProduct(${p.id})">Delete</button>
+        </div>
+    `).join("");
+
+    let userBody = document.getElementById("user-activity-body");
+    let { data: orders } = await sb.from("orders").select("*").order('id', { ascending: false }).limit(10);
+    
+    if(!orders || orders.length === 0) {
+        userBody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#94a3b8;">No user activity yet.</td></tr>`;
+        return;
+    }
+
+    userBody.innerHTML = orders.map(o => `
+        <tr>
+            <td>${o.user_email}</td>
+            <td>Ordered: ${o.product_name}</td>
+            <td><span class="user-status active">Active</span></td>
+            <td><button class="btn-danger" onclick="showToast('User Banned (Demo)')">Ban</button></td>
+        </tr>
+    `).join("");
+}
+
+async function adminAddProduct() {
+    const name = document.getElementById("new-prod-name").value;
+    const price = document.getElementById("new-prod-price").value;
+    const img = document.getElementById("new-prod-img").value;
+
+    if(!name || !price) { showToast("Enter Name and Price"); return; }
+
+    const { error } = await sb.from("products").insert([{ name, price, image_url: img }]);
+
+    if(error) {
+        console.error(error);
+        showToast("Error adding to DB");
+    } else {
+        showToast("Product Added!");
+        productsCache.push({ id: Date.now(), name, price, image_url: img });
+        loadAdminData();
+        loadProducts();
+        document.getElementById("new-prod-name").value = "";
+        document.getElementById("new-prod-price").value = "";
+        document.getElementById("new-prod-img").value = "";
+    }
+}
+
+async function adminDeleteProduct(id) {
+    if(!confirm("Delete this product?")) return;
+    const { error } = await sb.from("products").delete().eq("id", id);
+    if(error) {
+        console.error(error);
+        showToast("Error deleting product");
+    } else {
+        productsCache = productsCache.filter(p => p.id !== id);
+        loadAdminData();
+        loadProducts();
+        showToast("Product Deleted");
+    }
+}
+
+// ===== LOGIN/AUTH (Updated for Uiverse Form) =====
+let isLogin = true;
+let loginBtn = document.getElementById('login-submit-btn');
+loginBtn.addEventListener('click', authAction);
+
+function toggleMode() {
+    isLogin = !isLogin;
+    const title = document.getElementById("login-title");
+    const text = document.getElementById("login-mode-text");
+    const btn = document.getElementById('login-submit-btn');
+
+    if(isLogin) {
+        title.innerText = "Welcome back";
+        text.innerText = "Don't have an account?";
+        btn.innerText = "Log in";
+    } else {
+        title.innerText = "Create Account";
+        text.innerText = "Already have an account?";
+        btn.innerText = "Sign Up";
+    }
+}
+
+async function authAction() {
+    let email = document.getElementById("login-email").value;
+    let pass = document.getElementById("login-pass").value;
+    
+    if(!email || !pass) { showToast("Enter Email and Password"); return; }
+
+    if (isLogin) {
+        let { data, error } = await sb.auth.signInWithPassword({ email: email, password: pass });
+        if (error) { showToast(error.message); }
+        else {
+            localStorage.setItem("user", email);
+            currentUser = email;
+            showToast("Login Successful");
+            show("home");
         }
-
-        // --- 3. MODAL & QR FETCH LOGIC ---
-        async function openForm(gameName) {
-            const modal = document.getElementById('modal-backdrop');
-            document.getElementById('modal-title').innerText = `REGISTER: ${gameName}`;
-            modal.style.display = 'flex';
-
-            // Reset QR
-            const qrImg = document.getElementById('small-qr');
-            qrImg.src = "https://placehold.co/150x150?text=Loading...";
-
-            if (sbClient) {
-                try {
-                    // Fetch the QR with the LOWEST sc_count
-                    const { data, error } = await sbClient
-                        .from('id_scanner')
-                        .select('*')
-                        .order('sc_count', { ascending: true })
-                        .limit(1);
-
-                    if (error) throw error;
-
-                    if (data && data.length > 0) {
-                        currentQrId = data[0].id;
-                        qrImg.src = data[0].image_url;
-                    } else {
-                        // Fallback if table is empty
-                        console.warn("No QR codes found in database, using fallback.");
-                        useFallbackQr();
-                    }
-                } catch (err) {
-                    console.error("Error fetching QR:", err);
-                    showToast("Failed to load payment QR", "error");
-                    useFallbackQr();
-                }
-            } else {
-                useFallbackQr();
-            }
+    } else {
+        let { data, error } = await sb.auth.signUp({ email: email, password: pass });
+        if (error) { showToast(error.message); }
+        else {
+            showToast("Account Created! Now Login");
+            toggleMode();
         }
+    }
+}
 
-        function useFallbackQr() {
-            // Fallback to the API QR if DB fails
-            currentQrId = null;
-            document.getElementById('small-qr').src = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=tournamentadmin@upi&pn=GamingTournament";
-        }
+async function handleOrderSubmit(e) {
+    e.preventDefault();
+    if(!currentUser) { showToast("Please Login First"); show("login"); return; }
+    showToast("Order Placed Successfully!");
+    setTimeout(() => show("home"), 1000);
+}
 
-        function closeForm() {
-            document.getElementById('modal-backdrop').style.display = 'none';
-            document.getElementById('reg-form').reset();
-            document.getElementById('file-text').innerText = "Click to Upload Screenshot";
-            currentQrId = null;
-        }
+async function loadOrders() {
+    if(!currentUser) {
+        document.getElementById("orderArea").innerHTML = "<div style='padding:20px; text-align:center'>Please Login</div>";
+        return;
+    }
+    document.getElementById("orderArea").innerHTML = `<div class="card" style="width:100%; height:auto; padding:15px;"><h3>Sample Order</h3><p>Status: Pending</p></div>`;
+}
 
-        function updateFileLabel(input) {
-            if(input.files[0]) {
-                document.getElementById('file-text').innerText = input.files[0].name;
-                document.getElementById('file-text').style.color = 'var(--neon-blue)';
-            }
-        }
+function showToast(msg) {
+    let t = document.getElementById("toast");
+    t.innerText = msg; t.style.display = "block";
+    setTimeout(() => t.style.display = "none", 3000);
+}
 
-        document.getElementById('modal-backdrop').addEventListener('click', function(e) {
-            if(e.target === this) closeForm();
-        });
+// Initialize
+loadProducts();
+</script>
 
-        // --- 4. QR LIGHTBOX LOGIC ---
-        const smallQr = document.getElementById('small-qr');
-        const lightbox = document.getElementById('qr-lightbox');
-        const bigQrImg = document.getElementById('big-qr-img');
-
-        smallQr.addEventListener('click', function(e) {
-            e.stopPropagation();
-            bigQrImg.src = smallQr.src;
-            lightbox.style.display = 'flex';
-        });
-
-        function closeQrLightbox() {
-            lightbox.style.display = 'none';
-        }
-
-        // --- 5. SUBMIT LOGIC (With Count Update & BG Change) ---
-        async function submitData(e) {
-            e.preventDefault();
-            const btn = document.getElementById('submit-btn');
-            const fileInput = document.getElementById('file-input');
-            const mobileInput = e.target.mobile.value;
-
-            if(!fileInput.files[0]) {
-                showToast("Please upload payment screenshot", "error");
-                return;
-            }
-
-            if (!/^\d{10}$/.test(mobileInput)) {
-                showToast("Invalid Mobile Number. Must be exactly 10 digits.", "error");
-                return;
-            }
-
-            const originalText = btn.innerText;
-            btn.innerText = "PROCESSING...";
-            btn.disabled = true;
-
-            try {
-                // Simulate slight delay for UX
-                await new Promise(r => setTimeout(r, 1000));
-
-                if(sbClient) {
-                    // 1. Upload Screenshot
-                    const file = fileInput.files[0];
-                    const fileExt = file.name.split('.').pop();
-                    const fileName = `${Date.now()}.${fileExt}`;
-                    
-                    const { data: uploadData, error: uploadError } = await sbClient.storage
-                        .from('payment_proofs')
-                        .upload(fileName, file);
-
-                    if(uploadError) throw uploadError;
-
-                    const { data: urlData } = sbClient.storage.from('payment_proofs').getPublicUrl(fileName);
-                    
-                    // 2. Insert Registration Data
-                    const formData = {
-                        game_name: document.getElementById('modal-title').innerText.replace('REGISTER: ', ''),
-                        full_name: e.target.full_name.value,
-                        game_uid: e.target.game_uid.value,
-                        mobile: mobileInput,
-                        email: e.target.email.value,
-                        screenshot_url: urlData.publicUrl
-                    };
-
-                    const { error: insertError } = await sbClient.from('tournament_registrations').insert([formData]);
-                    if(insertError) throw insertError;
-
-                    // 3. Update QR Count (Only if we have a valid DB ID)
-                    if (currentQrId) {
-                        // First, get current count
-                        const { data: qrRow } = await sbClient
-                            .from('id_scanner')
-                            .select('sc_count')
-                            .eq('id', currentQrId)
-                            .single();
-                        
-                        if (qrRow) {
-                            const newCount = (qrRow.sc_count || 0) + 1;
-                            await sbClient
-                                .from('id_scanner')
-                                .update({ sc_count: newCount })
-                                .eq('id', currentQrId);
-                        }
-                    }
-
-                    // 4. Change Background to "Old Background"
-                    changeToOldBackground();
-                }
-
-                showToast("Registration Successful! Welcome.");
-                closeForm();
-
-            } catch (err) {
-                console.error(err);
-                showToast("Error: " + err.message, "error");
-            } finally {
-                btn.innerText = originalText;
-                btn.disabled = false;
-            }
-        }
-
-        // --- 6. BACKGROUND CHANGER ---
-        function changeToOldBackground() {
-            // This adds the class that swaps the CSS background
-            document.body.classList.add('background-completed');
-        }
-
-    </script>
 </body>
 </html>
