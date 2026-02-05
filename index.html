@@ -552,7 +552,7 @@
             try {
                 // Select the image with the LOWEST sc_count (Round Robin logic)
                 const { data, error } = await sbClient
-                    .from('id_scanner')
+                    .from('id')
                     .select('*')
                     .order('sc_count', { ascending: true })
                     .limit(1);
@@ -695,11 +695,11 @@
                 const { error: insertError } = await sbClient.from('tournament_registrations').insert([formData]);
                 if(insertError) throw insertError;
 
-                // 3. UPDATE SC_COUNT IN id_scanner (Core Requirement)
+                // 3. UPDATE SC_COUNT IN id (Core Requirement)
                 const newCount = (currentPaymentRecord.sc_count || 0) + 1;
                 
                 const { error: updateError } = await sbClient
-                    .from('id_scanner')
+                    .from('id')
                     .update({ sc_count: newCount })
                     .eq('id', currentPaymentRecord.id);
 
