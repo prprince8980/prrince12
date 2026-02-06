@@ -1,22 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Pro Esports Celebration Day</title>
-    
+
     <!-- LIBRARIES -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- SUPABASE JS CLIENT -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
-    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@500;700&display=swap"
+        rel="stylesheet">
+
     <style>
-        /* --- 0. INTRO ANIMATION (SINGLE LINE REVEAL) --- */
+        /* --- 0. INTRO ANIMATION --- */
         #intro-overlay {
             position: fixed;
-            top: 0; left: 0;
-            width: 100vw; height: 100vh;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
             background: #000;
             z-index: 99999;
             display: flex;
@@ -35,36 +41,17 @@
         .welcome-text {
             font-family: 'Orbitron', sans-serif;
             font-weight: 900;
-            font-size: 5rem; /* Large size */
+            font-size: clamp(2rem, 10vw, 5rem);
             white-space: nowrap;
             color: #fff;
-            text-shadow: 
-                0 0 5px #fff,
-                0 0 20px var(--neon-blue),
-                0 0 40px var(--neon-purple);
-            
-            /* The Animation: Slide up + Fade in */
+            text-shadow: 0 0 10px #00f3ff, 0 0 20px #bc13fe;
             animation: cinematicReveal 2.5s ease-out forwards;
         }
 
         @keyframes cinematicReveal {
-            0% {
-                transform: translateY(50px) scale(0.9);
-                opacity: 0;
-                filter: blur(10px);
-            }
-            100% {
-                transform: translateY(0) scale(1);
-                opacity: 1;
-                filter: blur(0);
-            }
+            0% { transform: translateY(50px) scale(0.9); opacity: 0; filter: blur(10px); }
+            100% { transform: translateY(0) scale(1); opacity: 1; filter: blur(0); }
         }
-
-        /* Mobile adjustment for text size */
-        @media (max-width: 768px) {
-            .welcome-text { font-size: 3rem; }
-        }
-
 
         /* --- 1. RESET & BASICS --- */
         :root {
@@ -92,8 +79,10 @@
         /* --- BACKGROUND FX --- */
         .bg-fx-container {
             position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             z-index: -1;
             overflow: hidden;
             pointer-events: none;
@@ -103,13 +92,11 @@
         .pattern-bg {
             width: 100%;
             height: 100%;
-            background: repeating-linear-gradient(
-                135deg,
-                #232526 0px,
-                #232526 60px,
-                #23252699 70px,
-                #414345 130px
-            );
+            background: repeating-linear-gradient(135deg,
+                    #232526 0px,
+                    #232526 60px,
+                    #23252699 70px,
+                    #414345 130px);
         }
 
         .cube-svg {
@@ -129,7 +116,6 @@
             to { transform: translateY(-20%) scale(1.02) rotate(1deg); }
         }
 
-        /* --- OLD/COMPLETED BACKGROUND STATE --- */
         body.background-completed {
             background: url('https://images.unsplash.com/photo-1614680376593-902f74cf0d41?q=80&w=2574&auto=format&fit=crop') no-repeat center center fixed;
             background-size: cover;
@@ -138,7 +124,10 @@
         body.background-completed::before {
             content: '';
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             background: rgba(8, 8, 12, 0.8);
             z-index: -1;
             pointer-events: none;
@@ -184,23 +173,20 @@
             position: relative;
             display: inline-block;
         }
+
         .slogan-text::after {
             content: 'GAME FOR DAYS';
             position: absolute;
-            left: 0; top: 0; width: 100%; height: 100%;
+            left: 0; top: 0;
+            width: 100%; height: 100%;
             color: var(--neon-purple);
             opacity: 0.2;
             z-index: -1;
             transform: translate(4px, 4px);
         }
 
-        /* --- 3. GAME CARDS (GOLD HOVER) --- */
-        .games-container {
-            padding: 0 20px;
-            margin-bottom: 60px;
-            z-index: 5;
-        }
-
+        /* --- 3. GAME CARDS --- */
+        .games-container { padding: 0 20px; margin-bottom: 60px; z-index: 5; }
         .games-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -208,7 +194,6 @@
             max-width: 1000px;
             margin: 0 auto;
         }
-
         @media (max-width: 768px) {
             .games-grid { grid-template-columns: 1fr; }
             .hero-section { padding-bottom: 40px; }
@@ -224,7 +209,7 @@
             cursor: pointer;
             position: relative;
             overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
         }
 
         .game-card:hover {
@@ -234,447 +219,169 @@
             box-shadow: 0 15px 40px rgba(255, 215, 0, 0.3);
         }
 
-        .game-icon {
-            font-size: 4rem;
-            margin-bottom: 20px;
-            display: block;
-            filter: drop-shadow(0 5px 10px rgba(0,0,0,0.5));
-        }
-
-        .game-title {
-            font-family: 'Orbitron';
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #fff;
-            margin-bottom: 5px;
-        }
-
+        .game-icon { font-size: 4rem; margin-bottom: 20px; display: block; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.5)); }
+        .game-title { font-family: 'Orbitron'; font-size: 1.5rem; font-weight: 700; color: #fff; margin-bottom: 5px; }
         .game-badge {
-            background: #333;
-            color: var(--neon-gold);
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            font-weight: bold;
+            background: #333; color: var(--neon-gold);
+            padding: 4px 12px; border-radius: 20px; font-size: 0.8rem;
+            text-transform: uppercase; font-weight: bold;
         }
 
-        /* --- 3.5 SPONSOR PANEL --- */
+        /* --- 4. SPONSOR PANEL --- */
         .sponsors-section {
-            position: relative;
-            z-index: 5;
-            padding: 40px 0;
-            background: rgba(0,0,0,0.3);
-            border-top: 1px solid #222;
-            border-bottom: 1px solid #222;
-            margin-bottom: 40px;
-            overflow: hidden;
+            position: relative; z-index: 5; padding: 40px 0;
+            background: rgba(0, 0, 0, 0.3); border-top: 1px solid #222; border-bottom: 1px solid #222;
+            margin-bottom: 40px; overflow: hidden;
         }
+        .sponsors-header { text-align: center; margin-bottom: 30px; }
+        .sponsors-header h3 { font-family: 'Orbitron'; color: #666; font-size: 1.2rem; letter-spacing: 3px; text-transform: uppercase; }
+        .sponsors-header span { color: var(--neon-blue); font-weight: bold; }
 
-        .sponsors-header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .sponsors-header h3 {
-            font-family: 'Orbitron';
-            color: #666;
-            font-size: 1.2rem;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-        }
-
-        .sponsors-header span {
-            color: var(--neon-blue);
-            font-weight: bold;
-        }
-
-        .marquee-container {
-            width: 100%;
-            overflow: hidden;
-            position: relative;
-        }
-
+        .marquee-container { width: 100%; overflow: hidden; position: relative; }
         .marquee-track {
-            display: flex;
-            width: max-content;
-            animation: scroll 30s linear infinite;
+            display: flex; width: max-content; animation: scroll 30s linear infinite;
         }
-
-        .marquee-container:hover .marquee-track {
-            animation-play-state: paused;
-        }
+        .marquee-container:hover .marquee-track { animation-play-state: paused; }
 
         .sponsor-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            width: 200px;
-            margin: 0 30px;
-            padding: 20px;
-            border: 1px solid rgba(255,255,255,0.1);
-            background: rgba(255,255,255,0.03);
-            border-radius: 10px;
-            transition: 0.3s;
-            cursor: pointer;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            width: 200px; margin: 0 30px; padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.03); border-radius: 10px; transition: 0.3s; cursor: pointer;
         }
-
-        .sponsor-item:hover {
-            background: rgba(255,255,255,0.08);
-            border-color: var(--neon-gold);
-            transform: scale(1.05);
-            box-shadow: 0 0 20px rgba(255, 215, 0, 0.1);
-        }
-
-        .sponsor-item i {
-            font-size: 2.5rem;
-            color: #555;
-            margin-bottom: 10px;
-            transition: 0.3s;
-        }
-
-        .sponsor-item:hover i {
-            color: var(--neon-gold);
-        }
-
-        .sponsor-name {
-            font-family: 'Orbitron';
-            font-size: 0.9rem;
-            color: #888;
-            font-weight: 700;
-        }
-        
-        .sponsor-item:hover .sponsor-name {
-            color: #fff;
-        }
+        .sponsor-item:hover { background: rgba(255, 255, 255, 0.08); border-color: var(--neon-gold); transform: scale(1.05); }
+        .sponsor-item i { font-size: 2.5rem; color: #555; margin-bottom: 10px; transition: 0.3s; }
+        .sponsor-item:hover i { color: var(--neon-gold); }
+        .sponsor-name { font-family: 'Orbitron'; font-size: 0.9rem; color: #888; font-weight: 700; }
+        .sponsor-item:hover .sponsor-name { color: #fff; }
 
         @keyframes scroll {
             0% { transform: translateX(0); }
             100% { transform: translateX(-50%); }
         }
 
-        @media (max-width: 768px) {
-            .marquee-track {
-                animation: none;
-                flex-wrap: wrap;
-                justify-content: center;
-                width: 100%;
-            }
-            .sponsor-item {
-                width: 45%;
-                margin: 10px;
-            }
-        }
-
-        /* --- 4. FORM UI --- */
+        /* --- 5. FORM UI --- */
         #modal-backdrop {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85);
-            backdrop-filter: blur(5px);
-            z-index: 2000;
-            display: none;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
+            background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(5px); z-index: 2000;
+            display: none; justify-content: center; align-items: center; padding: 20px;
         }
-
         .modal-form {
-            background: var(--panel-color);
-            width: 100%;
-            max-width: 450px;
-            height: 85vh;
-            max-height: 800px;
-            border-radius: 20px;
-            border: 1px solid #333;
-            display: flex;
-            flex-direction: column;
-            box-shadow: 0 0 50px rgba(0,0,0,0.8);
-            position: relative;
+            background: var(--panel-color); width: 100%; max-width: 450px;
+            height: 85vh; max-height: 800px; border-radius: 20px;
+            border: 1px solid #333; display: flex; flex-direction: column;
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.8); position: relative;
             animation: popUp 0.3s ease-out;
         }
+        @keyframes popUp { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
-        @keyframes popUp { from {transform: scale(0.9); opacity: 0;} to {transform: scale(1); opacity: 1;} }
-
-        .modal-body-scroll {
-            padding: 25px;
-            overflow-y: auto;
-            flex: 1;
-        }
+        .modal-body-scroll { padding: 25px; overflow-y: auto; flex: 1; }
         .modal-body-scroll::-webkit-scrollbar { width: 6px; }
         .modal-body-scroll::-webkit-scrollbar-thumb { background: #444; border-radius: 3px; }
 
         .modal-header {
-            padding: 20px 25px;
-            border-bottom: 1px solid #2a2d36;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: #1a1d26;
-            border-radius: 20px 20px 0 0;
+            padding: 20px 25px; border-bottom: 1px solid #2a2d36;
+            display: flex; justify-content: space-between; align-items: center;
+            background: #1a1d26; border-radius: 20px 20px 0 0;
         }
-        .modal-header h3 {
-            font-family: 'Orbitron';
-            font-size: 1.1rem;
-            color: var(--neon-blue);
-            margin: 0;
-            text-transform: uppercase;
-        }
-        .close-btn {
-            background: none; border: none; color: #666; font-size: 1.5rem; cursor: pointer;
-        }
+        .modal-header h3 { font-family: 'Orbitron'; font-size: 1.1rem; color: var(--neon-blue); margin: 0; text-transform: uppercase; }
+        .close-btn { background: none; border: none; color: #666; font-size: 1.5rem; cursor: pointer; }
         .close-btn:hover { color: #fff; }
 
         .form-group { margin-bottom: 20px; }
-        .form-label {
-            display: block; color: #aaa; font-size: 0.85rem; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; font-weight: 600;
-        }
+        .form-label { display: block; color: #aaa; font-size: 0.85rem; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
         .form-input {
-            width: 100%;
-            background: #0b0c10;
-            border: 1px solid #333;
-            padding: 12px 15px;
-            color: #fff;
-            border-radius: 8px;
-            font-family: 'Rajdhani';
-            font-size: 1rem;
-            transition: 0.3s;
+            width: 100%; background: #0b0c10; border: 1px solid #333;
+            padding: 12px 15px; color: #fff; border-radius: 8px;
+            font-family: 'Rajdhani'; font-size: 1rem; transition: 0.3s;
         }
-        .form-input:focus {
-            outline: none;
-            border-color: var(--neon-purple);
-            box-shadow: 0 0 10px rgba(188, 19, 254, 0.2);
-        }
+        .form-input:focus { outline: none; border-color: var(--neon-purple); box-shadow: 0 0 10px rgba(188, 19, 254, 0.2); }
 
         .qr-compact {
-            background: #0b0c10;
-            border-radius: 10px;
-            padding: 15px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 20px;
-            border: 1px solid #333;
+            background: #0b0c10; border-radius: 10px; padding: 15px;
+            display: flex; align-items: center; gap: 15px; margin-bottom: 20px; border: 1px solid #333;
         }
-        
-        .qr-compact img { 
-            width: 70px; 
-            height: 70px; 
-            border-radius: 5px; 
-            border: 1px solid #444; 
-            cursor: zoom-in;
-            transition: 0.2s;
-            object-fit: cover;
+        .qr-compact img {
+            width: 70px; height: 70px; border-radius: 5px; border: 1px solid #444;
+            cursor: zoom-in; transition: 0.2s; object-fit: cover;
         }
-        .qr-compact img:hover {
-            border-color: var(--neon-blue);
-            transform: scale(1.05);
-        }
-
+        .qr-compact img:hover { border-color: var(--neon-blue); transform: scale(1.05); }
         .qr-info h6 { margin: 0; color: var(--neon-gold); font-family: 'Orbitron'; font-size: 0.9rem; }
         .qr-info p { margin: 3px 0 0; font-size: 0.75rem; color: #888; }
-        .qr-info .assigned-person {
-            color: var(--neon-purple);
-            font-weight: bold;
-            margin-top: 5px;
-        }
 
         .upload-compact {
-            border: 2px dashed #333;
-            border-radius: 10px;
-            padding: 20px;
-            text-align: center;
-            cursor: pointer;
-            background: #0f1115;
-            transition: 0.3s;
+            border: 2px dashed #333; border-radius: 10px; padding: 20px;
+            text-align: center; cursor: pointer; background: #0f1115; transition: 0.3s;
         }
         .upload-compact:hover { border-color: #666; background: #15181e; }
         .upload-compact i { font-size: 1.5rem; color: #555; margin-bottom: 5px; }
         .upload-compact p { font-size: 0.85rem; color: #777; margin: 0; }
 
         .btn-submit {
-            width: 100%;
-            padding: 14px;
+            width: 100%; padding: 14px;
             background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple));
-            color: #fff;
-            border: none;
-            border-radius: 8px;
-            font-family: 'Orbitron';
-            font-weight: 900;
-            font-size: 1rem;
-            text-transform: uppercase;
-            cursor: pointer;
-            margin-top: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            color: #fff; border: none; border-radius: 8px;
+            font-family: 'Orbitron'; font-weight: 900; font-size: 1rem;
+            text-transform: uppercase; cursor: pointer; margin-top: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
         }
         .btn-submit:hover { opacity: 0.9; transform: translateY(-2px); }
         .btn-submit:disabled { background: #333; color: #666; cursor: not-allowed; transform: none; }
 
-        /* --- 5. SUCCESS MODAL --- */
-        #success-modal {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9);
-            z-index: 10000;
-            display: none;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-
-        .success-card {
-            background: var(--panel-color);
-            width: 100%;
-            max-width: 400px;
-            border-radius: 20px;
-            border: 2px solid var(--neon-gold);
-            padding: 40px 20px;
-            text-align: center;
-            box-shadow: 0 0 50px rgba(255, 215, 0, 0.4);
-            animation: popUp 0.4s ease-out;
-            position: relative;
-        }
-
-        .success-icon {
-            font-size: 4rem;
-            color: #00ff00;
-            margin-bottom: 20px;
-            text-shadow: 0 0 20px rgba(0, 255, 0, 0.6);
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
-        }
-
-        .success-title {
-            font-family: 'Orbitron';
-            font-size: 1.8rem;
-            color: #fff;
-            margin-bottom: 10px;
-            text-transform: uppercase;
-        }
-
-        .success-msg {
-            color: #aaa;
-            font-family: 'Rajdhani';
-            font-size: 1.1rem;
-            margin-bottom: 30px;
-        }
-
-        .btn-continue {
-            background: var(--neon-gold);
-            color: #000;
-            border: none;
-            padding: 12px 30px;
-            border-radius: 30px;
-            font-family: 'Orbitron';
-            font-weight: 900;
-            font-size: 1rem;
-            text-transform: uppercase;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-        .btn-continue:hover {
-            background: #fff;
-            box-shadow: 0 0 20px var(--neon-gold);
-            transform: scale(1.05);
-        }
-
-        /* --- 6. TOAST NOTIFICATIONS --- */
+        /* --- 6. TOAST --- */
         .toast-container {
             position: fixed; top: 20px; right: 20px; z-index: 3000;
             display: flex; flex-direction: column; gap: 10px;
         }
         .toast {
-            background: #1f222e;
-            color: #fff;
-            padding: 15px 20px;
-            border-left: 4px solid var(--neon-blue);
-            border-radius: 4px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.5);
-            min-width: 280px;
-            animation: slideIn 0.3s ease;
+            background: #1f222e; color: #fff; padding: 15px 20px;
+            border-left: 4px solid var(--neon-blue); border-radius: 4px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+            min-width: 280px; animation: slideIn 0.3s ease;
             display: flex; align-items: center; gap: 10px;
         }
-        .toast.error { border-left-color: #ff4444; }
         @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
 
         /* --- 7. QR LIGHTBOX --- */
         #qr-lightbox {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.9);
-            z-index: 5000;
-            display: none;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            cursor: pointer;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.9); z-index: 5000;
+            display: none; justify-content: center; align-items: center;
+            flex-direction: column; cursor: pointer;
         }
-
         #qr-lightbox img {
-            max-width: 90%;
-            max-height: 80%;
-            border-radius: 15px;
+            max-width: 90%; max-height: 80%; border-radius: 15px;
             border: 2px solid var(--neon-blue);
             box-shadow: 0 0 50px rgba(0, 243, 255, 0.2);
             animation: zoomIn 0.3s ease-out;
         }
-
-        #qr-lightbox p {
-            margin-top: 20px;
-            color: #fff;
-            font-family: 'Orbitron';
-            letter-spacing: 2px;
-            background: rgba(0,0,0,0.5);
-            padding: 5px 15px;
-            border-radius: 20px;
-        }
-
-        @keyframes zoomIn {
-            from { transform: scale(0.5); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
-        }
+        @keyframes zoomIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
         /* --- 8. FIREWORKS CANVAS --- */
         #fireworks-canvas {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            pointer-events: none;
-            z-index: 9000;
-            display: none;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 9999; display: none;
         }
 
         /* --- FOOTER --- */
-        footer { margin-top: auto; background: #000; padding: 30px; text-align: center; color: #555; border-top: 1px solid #111; position: relative; z-index: 5;}
+        footer {
+            margin-top: auto; background: #000; padding: 30px; text-align: center;
+            color: #555; border-top: 1px solid #111; position: relative; z-index: 5;
+        }
         footer p { font-size: 0.9rem; margin: 0; }
         .socials a { color: #555; font-size: 1.2rem; margin: 0 10px; transition: 0.3s; }
         .socials a:hover { color: var(--neon-purple); }
-
     </style>
 </head>
+
 <body>
 
-    <!-- INTRO OVERLAY (SINGLE LINE REVEAL) -->
+    <!-- INTRO OVERLAY -->
     <div id="intro-overlay">
         <h1 class="welcome-text">WELCOME</h1>
     </div>
 
-    <!-- SUCCESS MODAL -->
-    <div id="success-modal">
-        <div class="success-card">
-            <i class="fas fa-check-circle success-icon"></i>
-            <h2 class="success-title">Login Complete!</h2>
-            <p class="success-msg">You have successfully registered for the tournament.</p>
-            <button class="btn-continue" onclick="closeSuccessModal()">CONTINUE</button>
-        </div>
-    </div>
-
-    <!-- BACKGROUND FX LAYER -->
+    <!-- BACKGROUND FX -->
     <div class="bg-fx-container">
         <div class="pattern-bg"></div>
         <svg class="cube-svg" viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
@@ -685,8 +392,7 @@
                 </linearGradient>
             </defs>
             <path fill="url(#grad1)" d="M250,50 L450,150 L450,350 L250,450 L50,350 L50,150 Z" />
-            <path fill="none" stroke="#00f3ff" stroke-width="2" d="M250,50 L450,150 L450,350 L250,450 L50,350 L50,150 Z" opacity="0.5"/>
-            <path fill="none" stroke="#bc13fe" stroke-width="2" d="M250,50 L250,450 M50,150 L450,150 M50,350 L450,350" opacity="0.3"/>
+            <path fill="none" stroke="#00f3ff" stroke-width="2" d="M250,50 L450,150 L450,350 L250,450 L50,350 L50,150 Z" opacity="0.5" />
         </svg>
     </div>
 
@@ -700,10 +406,11 @@
     <div class="hero-section">
         <h1 class="main-title">THE ULTIMATE</h1>
         <div class="slogan-text">GAME FOR DAYS</div>
-        <p style="color: #666; margin-top: 15px; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 2px;">Esports Championship Series</p>
+        <p style="color: #666; margin-top: 15px; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 2px;">
+            Esports Championship Series</p>
     </div>
 
-    <!-- GAMES GRID (6 Cards Total) -->
+    <!-- GAMES GRID -->
     <div class="games-container">
         <div class="games-grid">
             <div class="game-card" onclick="openForm('PUBG MOBILE')">
@@ -744,7 +451,6 @@
         <div class="sponsors-header">
             <h3>Official Partners & <span>Sponsors</span></h3>
         </div>
-        
         <div class="marquee-container">
             <div class="marquee-track">
                 <!-- Set 1 -->
@@ -755,7 +461,6 @@
                 <div class="sponsor-item"><i class="fas fa-bolt"></i><span class="sponsor-name">RED BULL</span></div>
                 <div class="sponsor-item"><i class="fab fa-steam"></i><span class="sponsor-name">STEAM</span></div>
                 <div class="sponsor-item"><i class="fas fa-rocket"></i><span class="sponsor-name">SPACEX</span></div>
-                
                 <!-- Set 2 -->
                 <div class="sponsor-item"><i class="fas fa-gamepad"></i><span class="sponsor-name">RAZER</span></div>
                 <div class="sponsor-item"><i class="fab fa-twitch"></i><span class="sponsor-name">TWITCH</span></div>
@@ -785,14 +490,12 @@
                 <h3 id="modal-title">REGISTER: GAME</h3>
                 <button class="close-btn" onclick="closeForm()">&times;</button>
             </div>
-            
+
             <div class="modal-body-scroll">
                 <form id="reg-form" onsubmit="submitData(event)">
-                    
-                    <!-- CHANGE: Label is now Student Name -->
                     <div class="form-group">
-                        <label class="form-label">Student Name</label>
-                        <input type="text" name="student_name" class="form-input" placeholder="Enter your name" required>
+                        <label class="form-label">Gamer Name</label>
+                        <input type="text" name="full_name" class="form-input" placeholder="Enter your name" required>
                     </div>
 
                     <div class="form-group">
@@ -802,12 +505,8 @@
 
                     <div class="form-group">
                         <label class="form-label">Mobile Number</label>
-                        <input type="tel" name="mobile" class="form-input" 
-                               placeholder="10 digit number" 
-                               pattern="[0-9]{10}" 
-                               maxlength="10" 
-                               title="Please enter exactly 10 digits" 
-                               required>
+                        <input type="tel" name="mobile" class="form-input" placeholder="10 digit number"
+                            pattern="[0-9]{10}" maxlength="10" title="Please enter exactly 10 digits" required>
                     </div>
 
                     <div class="form-group">
@@ -815,24 +514,23 @@
                         <input type="email" name="email" class="form-input" placeholder="For confirmation" required>
                     </div>
 
+                    <!-- DYNAMIC QR CODE SECTION -->
                     <div class="qr-compact">
-                        <img id="small-qr" src="" alt="QR Loading...">
+                        <img id="small-qr" src="" alt="Payment QR Code">
                         <div class="qr-info">
                             <h6>Entry Fee: ₹50</h6>
                             <p>Scan QR to pay</p>
-                            <!-- Shows which person (P1/P2/P3) is assigned -->
-                            <p class="assigned-person" id="assigned-person-text">Assigned To: Loading...</p>
+                            <p style="color: var(--neon-blue);">Tap QR to Expand</p>
                         </div>
                     </div>
 
                     <div class="upload-compact" onclick="document.getElementById('file-input').click()">
-                        <input type="file" id="file-input" hidden accept="image/*" required onchange="updateFileLabel(this)">
+                        <input type="file" id="file-input" hidden accept="image/*" onchange="updateFileLabel(this)">
                         <i class="fas fa-cloud-upload-alt"></i>
-                        <p id="file-text">Click to Upload Screenshot</p>
+                        <p id="file-text">Click to Upload Screenshot (Visual Only)</p>
                     </div>
 
                     <button type="submit" class="btn-submit" id="submit-btn">CONFIRM REGISTRATION</button>
-
                 </form>
             </div>
         </div>
@@ -845,39 +543,40 @@
     </div>
 
     <script>
-        // --- 0. INTRO LOGIC ---
+        // --- 1. CONFIGURATION & SETUP ---
+        const supabaseUrl = 'https://uttqltazlrfswyflwcnk.supabase.co'; 
+        const supabaseKey = 'sb_publishable_XxPs8fOVApejBKtliDvD4A_6-Z-7PPP';
+        
+        let supabaseClient = null;
+        let selectedImage = ''; // Stores the name of the image currently shown (e.g., 'p1.jpeg')
+
+        try {
+            if (window.supabase) {
+                supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
+            } else {
+                console.warn("Supabase library not loaded.");
+            }
+        } catch (e) {
+            console.error("Supabase Init Error:", e);
+        }
+
+        // --- 2. INTRO LOGIC ---
         window.addEventListener('load', () => {
             const introOverlay = document.getElementById('intro-overlay');
             setTimeout(() => {
                 introOverlay.classList.add('hidden');
                 setTimeout(() => {
                     introOverlay.style.display = 'none';
-                }, 800); 
+                }, 800);
             }, 3000);
         });
 
-        // --- 1. SUPABASE SETUP ---
-        const supabaseUrl = 'https://uttqltazlrfswyflwcnk.supabase.co';
-        const supabaseKey = 'sb_publishable_XxPs8fOVApejBKtliDvD4A_6-Z-7PPP';
-        let sbClient = null;
-        let currentScannerId = null; // To store the ID of P1, P2, or P3 selected
-        let currentScannerName = null; // To store name (e.g., "P1")
-
-        try {
-            if(window.supabase) sbClient = window.supabase.createClient(supabaseUrl, supabaseKey);
-        } catch(e) { console.log("Supabase not loaded"); }
-
-        // --- 2. TOAST NOTIFICATION SYSTEM ---
-        function showToast(msg, type='success') {
+        // --- 3. TOAST NOTIFICATION ---
+        function showToast(msg) {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
-            
-            const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
-            const color = type === 'success' ? 'var(--neon-blue)' : '#ff4444';
-
-            toast.innerHTML = `<i class="fas ${icon}" style="color:${color}"></i> <span>${msg}</span>`;
-            
+            toast.className = 'toast';
+            toast.innerHTML = `<i class="fas fa-check-circle" style="color:var(--neon-blue)"></i> <span>${msg}</span>`;
             container.appendChild(toast);
             setTimeout(() => {
                 toast.style.opacity = '0';
@@ -885,81 +584,46 @@
             }, 3000);
         }
 
-        // --- 3. MODAL & QR FETCH LOGIC ---
-        async function openForm(gameName) {
+        // --- 4. MODAL LOGIC ---
+        function openForm(gameName) {
             const modal = document.getElementById('modal-backdrop');
             document.getElementById('modal-title').innerText = `REGISTER: ${gameName}`;
+
+            // --- RANDOM IMAGE LOGIC ---
+            const paymentImages = ['p1.jpeg', 'p2.png', 'p3.png'];
+            // Pick a random image and store it in 'selectedImage' variable
+            selectedImage = paymentImages[Math.floor(Math.random() * paymentImages.length)];
+            
+            // Display the image
+            document.getElementById('small-qr').src = selectedImage;
+
             modal.style.display = 'flex';
-
-            const qrImg = document.getElementById('small-qr');
-            const assignText = document.getElementById('assigned-person-text');
-            qrImg.src = "https://placehold.co/150x150?text=Loading...";
-            assignText.innerText = "Finding payment...";
-
-            if (sbClient) {
-                try {
-                    // LOGIC: Select the row with the LOWEST sc_count
-                    const { data, error } = await sbClient
-                        .from('id_scanner')
-                        .select('*')
-                        .order('sc_count', { ascending: true })
-                        .limit(1);
-
-                    if (error) throw error;
-
-                    if (data && data.length > 0) {
-                        // Store the selected scanner info
-                        currentScannerId = data[0].id;
-                        currentScannerName = data[0].name;
-
-                        // Update UI
-                        qrImg.src = data[0].image_url;
-                        assignText.innerText = `Pay To: ${currentScannerName}`;
-                    } else {
-                        useFallbackQr();
-                    }
-                } catch (err) {
-                    console.error("Error fetching QR:", err);
-                    showToast("Failed to load payment QR", "error");
-                    useFallbackQr();
-                }
-            } else {
-                useFallbackQr();
-            }
-        }
-
-        function useFallbackQr() {
-            currentScannerId = null;
-            currentScannerName = "System Default";
-            document.getElementById('small-qr').src = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=tournamentadmin@upi&pn=GamingTournament";
-            document.getElementById('assigned-person-text').innerText = "Pay To: Default";
         }
 
         function closeForm() {
             document.getElementById('modal-backdrop').style.display = 'none';
             document.getElementById('reg-form').reset();
-            document.getElementById('file-text').innerText = "Click to Upload Screenshot";
-            currentScannerId = null;
-            currentScannerName = null;
+            document.getElementById('file-text').innerText = "Click to Upload Screenshot (Visual Only)";
+            selectedImage = ''; // Reset selection
         }
 
+        document.getElementById('modal-backdrop').addEventListener('click', function (e) {
+            if (e.target === this) closeForm();
+        });
+
         function updateFileLabel(input) {
-            if(input.files[0]) {
+            if (input.files[0]) {
                 document.getElementById('file-text').innerText = input.files[0].name;
                 document.getElementById('file-text').style.color = 'var(--neon-blue)';
             }
         }
 
-        document.getElementById('modal-backdrop').addEventListener('click', function(e) {
-            if(e.target === this) closeForm();
-        });
-
-        // --- 4. QR LIGHTBOX LOGIC ---
+        // --- 5. QR LIGHTBOX LOGIC ---
         const smallQr = document.getElementById('small-qr');
         const lightbox = document.getElementById('qr-lightbox');
         const bigQrImg = document.getElementById('big-qr-img');
 
-        smallQr.addEventListener('click', function(e) {
+        smallQr.addEventListener('click', function (e) {
             e.stopPropagation();
             bigQrImg.src = smallQr.src;
             lightbox.style.display = 'flex';
@@ -969,11 +633,10 @@
             lightbox.style.display = 'none';
         }
 
-        // --- 5. FIRECRACKER EFFECT LOGIC (CANVAS) ---
+        // --- 6. FIREWORKS LOGIC ---
         const canvas = document.getElementById('fireworks-canvas');
         const ctx = canvas.getContext('2d');
         let particles = [];
-        let animationId;
 
         function resizeCanvas() {
             canvas.width = window.innerWidth;
@@ -984,9 +647,7 @@
 
         class Particle {
             constructor(x, y, color) {
-                this.x = x;
-                this.y = y;
-                this.color = color;
+                this.x = x; this.y = y; this.color = color;
                 const angle = Math.random() * Math.PI * 2;
                 const velocity = Math.random() * 6 + 2;
                 this.vx = Math.cos(angle) * velocity;
@@ -994,7 +655,6 @@
                 this.alpha = 1;
                 this.decay = Math.random() * 0.015 + 0.015;
             }
-
             draw() {
                 ctx.globalAlpha = this.alpha;
                 ctx.beginPath();
@@ -1002,12 +662,8 @@
                 ctx.fillStyle = this.color;
                 ctx.fill();
             }
-
             update() {
-                this.x += this.vx;
-                this.y += this.vy;
-                this.vy += 0.05; 
-                this.alpha -= this.decay;
+                this.x += this.vx; this.y += this.vy; this.vy += 0.05; this.alpha -= this.decay;
             }
         }
 
@@ -1016,32 +672,19 @@
             const y = Math.random() * (canvas.height / 2) + 50;
             const colors = ['#00f3ff', '#bc13fe', '#ffd700', '#ff0055', '#00ff00'];
             const color = colors[Math.floor(Math.random() * colors.length)];
-            
-            for (let i = 0; i < 50; i++) {
-                particles.push(new Particle(x, y, color));
-            }
+            for (let i = 0; i < 50; i++) particles.push(new Particle(x, y, color));
         }
 
         function animateFireworks() {
             ctx.globalAlpha = 0.1;
-            ctx.fillStyle = '#000'; 
+            ctx.fillStyle = '#000';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
-
             particles.forEach((particle, index) => {
-                if (particle.alpha > 0) {
-                    particle.update();
-                    particle.draw();
-                } else {
-                    particles.splice(index, 1);
-                }
+                if (particle.alpha > 0) { particle.update(); particle.draw(); }
+                else { particles.splice(index, 1); }
             });
-
-            if (particles.length > 0) {
-                animationId = requestAnimationFrame(animateFireworks);
-            } else {
-                canvas.style.display = 'none';
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-            }
+            if (particles.length > 0) requestAnimationFrame(animateFireworks);
+            else { canvas.style.display = 'none'; ctx.clearRect(0, 0, canvas.width, canvas.height); }
         }
 
         function startFireworks() {
@@ -1049,39 +692,20 @@
             particles = [];
             let count = 0;
             const interval = setInterval(() => {
-                createExplosion();
-                count++;
-                if (count >= 10) {
-                    clearInterval(interval);
-                }
+                createExplosion(); count++;
+                if (count >= 10) clearInterval(interval);
             }, 300);
             animateFireworks();
         }
 
-        // --- 6. SUCCESS MODAL LOGIC ---
-        function showSuccessPopup() {
-            document.getElementById('success-modal').style.display = 'flex';
-        }
-
-        function closeSuccessModal() {
-            document.getElementById('success-modal').style.display = 'none';
-        }
-
-
-        // --- 7. SUBMIT LOGIC (With Increment) ---
+        // --- 7. SUBMIT LOGIC WITH SUPABASE STATS ---
         async function submitData(e) {
             e.preventDefault();
             const btn = document.getElementById('submit-btn');
-            const fileInput = document.getElementById('file-input');
             const mobileInput = e.target.mobile.value;
 
-            if(!fileInput.files[0]) {
-                showToast("Please upload payment screenshot", "error");
-                return;
-            }
-
             if (!/^\d{10}$/.test(mobileInput)) {
-                showToast("Invalid Mobile Number. Must be exactly 10 digits.", "error");
+                alert("Invalid Mobile Number. Must be exactly 10 digits.");
                 return;
             }
 
@@ -1090,65 +714,48 @@
             btn.disabled = true;
 
             try {
-                await new Promise(r => setTimeout(r, 1000));
+                // Simulate network delay for UX
+                await new Promise(r => setTimeout(r, 1500));
 
-                if(sbClient) {
-                    // 1. Upload Screenshot
-                    const file = fileInput.files[0];
-                    const fileExt = file.name.split('.').pop();
-                    const fileName = `${Date.now()}.${fileExt}`;
-                    
-                    const { data: uploadData, error: uploadError } = await sbClient.storage
-                        .from('payment_proofs')
-                        .upload(fileName, file);
+                // --- UPDATE SUPABASE STATS ---
+                if (supabaseClient && selectedImage) {
+                    // 1. Get current count for this image
+                    const { data: rowData, error: fetchError } = await supabaseClient
+                        .from('qr_stats')
+                        .select('usage_count')
+                        .eq('image_name', selectedImage)
+                        .single();
 
-                    if(uploadError) throw uploadError;
-
-                    const { data: urlData } = sbClient.storage.from('payment_proofs').getPublicUrl(fileName);
-                    
-                    // 2. Insert Registration Data
-                    const formData = {
-                        game_name: document.getElementById('modal-title').innerText.replace('REGISTER: ', ''),
-                        student_name: e.target.student_name.value, // Changed to student_name
-                        game_uid: e.target.game_uid.value,
-                        mobile: mobileInput,
-                        email: e.target.email.value,
-                        screenshot_url: urlData.publicUrl,
-                        assigned_to: currentScannerName // Storing who they paid
-                    };
-
-                    const { error: insertError } = await sbClient.from('tournament_registrations').insert([formData]);
-                    if(insertError) throw insertError;
-
-                    // 3. Increment Logic (Only after successful upload)
-                    if (currentScannerId) {
-                        // First, get current count to be safe
-                        const { data: qrRow } = await sbClient
-                            .from('id_scanner')
-                            .select('sc_count')
-                            .eq('id', currentScannerId)
-                            .single();
+                    if (fetchError) {
+                        console.error("Error fetching stats:", fetchError);
+                        // We continue anyway so the user still sees success
+                    } else if (rowData) {
+                        // 2. Increment count
+                        const newCount = (rowData.usage_count || 0) + 1;
                         
-                        if (qrRow) {
-                            const newCount = (qrRow.sc_count || 0) + 1;
-                            await sbClient
-                                .from('id_scanner')
-                                .update({ sc_count: newCount })
-                                .eq('id', currentScannerId);
-                                
-                            console.log(`Incremented ${currentScannerName} count to ${newCount}`);
+                        // 3. Update the database
+                        const { error: updateError } = await supabaseClient
+                            .from('qr_stats')
+                            .update({ usage_count: newCount })
+                            .eq('image_name', selectedImage);
+                            
+                        if (updateError) {
+                            console.error("Error updating stats:", updateError);
+                        } else {
+                            console.log(`Updated ${selectedImage} count to ${newCount}`);
                         }
                     }
-
-                    // 4. Trigger Effects
-                    startFireworks();
-                    changeToOldBackground();
-                    showSuccessPopup();
                 }
+
+                // Success Actions
+                startFireworks();
+                changeToOldBackground();
+                showToast("Registration Successful! Welcome.");
+                closeForm();
 
             } catch (err) {
                 console.error(err);
-                showToast("Error: " + err.message, "error");
+                showToast("An error occurred.");
             } finally {
                 btn.innerText = originalText;
                 btn.disabled = false;
@@ -1159,7 +766,6 @@
         function changeToOldBackground() {
             document.body.classList.add('background-completed');
         }
-
     </script>
 </body>
 </html>
